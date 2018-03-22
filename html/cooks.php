@@ -40,7 +40,7 @@
  </head>
  <body>
   <div class="container">
-   <?php $btnActive[2]=" class='active'";?>
+   <?php $btnActive[3]=" class='active'";?>
    <?php require 'menu.php';?>
    <!-- Main component for a primary marketing message or call to action -->
    <div class="jumbotron">
