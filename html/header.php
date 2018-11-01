@@ -1,7 +1,26 @@
+<?php
+// Login handler
+session_start();
+if (!empty($_POST)) {
+    if (isset($_POST['username']) && isset($_POST['password'])) {
+		$hasheduser  = file_get_contents("../bbq_user.txt"); // this is our stored user
+		$hashedpass  = file_get_contents("../bbq_pass.txt"); // and our stored password
+    		
+    	// Verify user password and set $_SESSION
+    	if ((password_verify($_POST['username'], $hasheduser)) && (password_verify($_POST['password'], $hashedpass))) {
+    		$_SESSION['auth'] = true;
+    	}
+    }
+} elseif ($_GET['action'] == 'logout') {
+	session_destroy();
+	header("Location: ".parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
   	<!-- this is the header.php code -->
+	<meta http-equiv="refresh" content="1200;URL='./'">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,10 +39,6 @@
 
     <!-- Custom styles for this template -->
     <link href="./css/navbar.css" rel="stylesheet">
-
-    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-    <!--[if lt IE 9]><script src="./js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="./js/ie-emulation-modes-warning.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>

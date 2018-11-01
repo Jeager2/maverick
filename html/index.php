@@ -1,36 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta http-equiv="refresh" content="1200;URL='./'">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
-    <meta name="author" content="">
-    <link rel="icon" href="../../favicon.ico">
-
-    <title>Maverick ET-732 BBQ Thermometer</title>
-
-    <!-- Bootstrap core CSS -->
-    <link href="./css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="./css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-
-    <!-- Custom styles for this template -->
-    <link href="./css/navbar.css" rel="stylesheet">
-
-    <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-    <!--[if lt IE 9]><script src="./js/ie8-responsive-file-warning.js"></script><![endif]-->
-    <script src="./js/ie-emulation-modes-warning.js"></script>
-
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-    <script   src="https://code.jquery.com/jquery-3.1.0.js"   integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="   crossorigin="anonymous"></script>
+<?php
+require 'header.php';
+if ($_SESSION['auth'] == true) : 
+?>
     <script src="./nosleep.js"></script>
     <script>
     var noSleep = new NoSleep();
@@ -53,6 +24,7 @@
 				if (counter==0) {
 					//$("#silenceAlertDiv").css("display","none");
 					$("#silenceAlertDiv").hide();
+					$("#alertType").html('');
 					$("#silenceAlert").prop('value', 'Silence');
 					$("#silenceAlert").prop("disabled",false);
 					clearInterval(handle);
@@ -64,7 +36,6 @@
 		});
 
 		$('#toggleCook').click(function(){
-			//alert($('#smoker').val());
 			$.ajax({
 				url: 'togglecook.php',
 				type: 'POST',
@@ -89,8 +60,8 @@
 					}
 				},
 			});
-			//$('#silenceAlertDiv').css("display","none");
 			$('#silenceAlertDiv').hide();
+			$('#alertType').html("");
 		});
 
 		var callAjax = function(){
@@ -120,15 +91,17 @@
 				type:'POST',
 				data: 'p1=alerts',
 				success:function(data){
-					if(data=='alert' && silenceAlerts==false) {
+					if(data!='' && silenceAlerts==false) {
 						audio.play();
 						//$("#silenceAlertDiv").css("display","block");
 						$("#silenceAlertDiv").show();
+						$("#alertType").html(data);
 					} else {
 						audio.pause();
 						if (silenceAlerts==false) {
 							//$("#silenceAlertDiv").css("display","none");
 							$("#silenceAlertDiv").hide();
+							$("#alertType").html("");
 						}
 					}
 				}
@@ -137,6 +110,7 @@
 		setInterval(checkAlerts,5000);
 	});
    </script>
+<?php endif; ?>
   </head>
 
   <body>
@@ -147,8 +121,9 @@
       <!-- Main component for a primary marketing message or call to action -->
       <div class="jumbotron">
        <h2>Maverick ET-732 BBQ Thermometer</h2>
+	   
          <?php
-
+		 if ($_SESSION['auth'] == true) :
 			exec("pgrep maverick", $pids);
 			if(empty($pids)) {
 				$val='Start Cook';
@@ -203,7 +178,7 @@
 	   	    <select name="smoker" id="smoker">
 	   	    <?php if ($smokersList) { ?>
 	   	    <?php  while($smokersRow=$smokersList->fetchArray()) { ?>
-	   	     <option value=<?=$smokersRow['id']?>><?=$smokersRow['desc']?></option>
+	   	     <option value=<?=$smokersRow['id']?>><?=htmlspecialchars($smokersRow['desc'])?></option>
 	   	    <?php  } ?>
 	   	    <?php } ?>
 	   	    <?php $database->close(); ?>
@@ -218,13 +193,20 @@
 	   	  </div>
 	   	 </form>
         </div><br />
-        <div class="col-md-12">
+        <div class="row">
          <input class="<?=$btnClass?>" type="submit" value="<?=$val?>" id="toggleCook">
-        </div>
-        <div class="col-md-12" id="silenceAlertDiv" style="display:none">
-		 <input class="btn btn-lg btn-danger" type="button" value="Silence" id="silenceAlert">
         </div><br />
+        <div class="row" id="silenceAlertDiv" style="display:none">
+	 <input class="btn btn-lg btn-danger" type="button" value="Silence" id="silenceAlert">
+        </div>
+        <div class="row">
+         <div class="col-md-2">
+          <p id="alertType" class="h2 bg-danger"></p>
+         </div>
+         <div class="col-md-10">&nbsp;</div>
+        </div>
       </div>
+  <?php endif; ?>
     </div> <!-- /container -->
     <?php require 'footer.php';?>
     <script><?=$keepAwake?></script>
