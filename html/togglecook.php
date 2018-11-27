@@ -24,8 +24,8 @@
 			//maverick program is running, kill it
 			$pid=$pids[0];
 			exec("sudo kill ".$pid);
-			echo "Start Cook";
-			mail("2192294610@msg.fi.google.com","Cook Stopped","Cook #".$_COOKIE['cookID']." stopped ".date('m/d/Y h:i a',time()));
+			echo "Start New Cook";
+			//mail("2192294610@msg.fi.google.com","Cook Stopped","Cook #".$_COOKIE['cookID']." stopped ".date('m/d/Y h:i a',time()));
 			if (isset($_COOKIE['cookID'])) {
 				setcookie("cookID","",time()-3600); //delete it
 			}
@@ -51,23 +51,28 @@
 					} else {
 						$dt=$dt." ".$row['h'].":".$row['m']." am";
 					}
-					mail("2192294610@msg.fi.google.com","Cook Started","Cook #".$row['id']." started ".$dt);
+					//mail("2192294610@msg.fi.google.com","Cook Started","Cook #".$row['id']." started ".$dt);
 					$activeCook=$row['id'];
 				}
 			}
 
 			if (($database->querySingle('SELECT cookid FROM activecook'))>-1) {
-				$smoker=$_POST['smoker'];
-				$query="UPDATE cooks SET smoker='".$smoker."' WHERE id=".$activeCook.";";
-				if (isset($_POST["alertEmail"])) {
-					$pL=$_POST['pitLow'];
-					$pH=$_POST['pitHi'];
-					$fL=$_POST['foodLow'];
-					$fH=$_POST['foodHi'];
-					$email=$_POST['alertEmail'];
-					$query="UPDATE cooks SET smoker='".$smoker."',pitLow='".$pL."',pitHi='".$pH."',foodLow='".$fL."',foodHi='".$fH."',email='".$email."' WHERE id=".$activeCook.";";
+				if ($_POST["pitLow"] + $_POST["pitHi"] + $_POST["foodLow"] + $_POST["foodHi"] > 0) {
+					$query = $database->prepare('UPDATE cooks SET smoker=:smoker,pitLow=:pL,pitHi=:pH,foodLow=:fL,foodHi=:fH,note=:note WHERE id=:id');
+					$query->bindValue(':smoker', $_POST['smoker'], SQLITE3_INTEGER);
+					$query->bindValue(':pL', $_POST['pitLow'], SQLITE3_INTEGER);
+					$query->bindValue(':pH', $_POST['pitHi'], SQLITE3_INTEGER);
+					$query->bindValue(':fL', $_POST['foodLow'], SQLITE3_INTEGER);
+					$query->bindValue(':fH', $_POST['foodHi'], SQLITE3_INTEGER);
+					$query->bindValue(':note', $_POST['bbqNotes'], SQLITE3_TEXT);
+					$query->bindValue(':id', $activeCook, SQLITE3_INTEGER);
+				} else {
+					$query = $database->prepare('UPDATE cooks SET smoker=:smoker,note=:note WHERE id=:id');
+					$query->bindValue(':smoker', $_POST['smoker'], SQLITE3_INTEGER);
+					$query->bindValue(':note', $_POST['bbqNotes'], SQLITE3_TEXT);
+					$query->bindValue(':id', $activeCook, SQLITE3_INTEGER);
 				}
-				$database->query($query);
+				$query->execute();
 			}
 		}
 	//ajax call from alerts
@@ -79,28 +84,11 @@
 			$fH=$database->querySingle('SELECT foodHi FROM cooks WHERE id='.$activeCook.';');
 			$probe1=$database->querySingle('SELECT probe1 FROM readings WHERE cookid='.$activeCook.' ORDER BY time DESC LIMIT 1;');
 			$probe2=$database->querySingle('SELECT probe2 FROM readings WHERE cookid='.$activeCook.' ORDER BY time DESC LIMIT 1;');
-
-			$flag=false;
-			if (($probe1>0 && ($probe1>=$fH || $probe1<=$fL)) || ($probe2>0 && ($probe2>=$pH || $probe2<=$pL))) {
-				echo "alert";
-			}
-			/*
-			if (($probe1>=$fH || $probe1<=$fL) || ($probe2>=$pH || $probe2<=$pL)) {
-				echo "alert";
-			}
-			*/
+			echo ($probe1>0 && $fH>0 && $probe1>=$fH) ? "Food High: ".$probe1 : "";
+			echo ($probe1>0 && $fL>0 && $probe1<=$fL) ? "Food Low: ".$probe1 : "";
+			echo ($probe2>0 && $pH>0 && $probe2>=$pH) ? "Pit High: ".$probe2 : "";
+			echo ($probe2>0 && $pL>0 && $probe2<=$pL) ? "Pit Low: ".$probe2 : "";
 		}
-	} /*else if ($_POST["p1"]=="interval") {
-		if (!empty($pids)) {
-			echo "Stop Cook";
-                        if ($result=$database->query($query)) {
-                                while($row=$result->fetchArray()) {
-					setcookie("cookID", $row['id']);
-                                }
-                        }
-		} else {
-			echo "Start Cook";
-		}
-	}*/
+	}
 	$database->close();
 ?>

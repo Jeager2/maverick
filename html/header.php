@@ -3,8 +3,8 @@
 session_start();
 if (!empty($_POST)) {
     if (isset($_POST['username']) && isset($_POST['password'])) {
-		$hasheduser  = file_get_contents("../bbq_user.txt"); // this is our stored user
-		$hashedpass  = file_get_contents("../bbq_pass.txt"); // and our stored password
+		$hasheduser = file_get_contents("../bbq_user.txt"); // this is our stored user
+		$hashedpass = file_get_contents("../bbq_pass.txt"); // and our stored password
     		
     	// Verify user password and set $_SESSION
     	if ((password_verify($_POST['username'], $hasheduser)) && (password_verify($_POST['password'], $hashedpass))) {
@@ -20,7 +20,7 @@ if (!empty($_POST)) {
 <html lang="en">
   <head>
   	<!-- this is the header.php code -->
-	<meta http-equiv="refresh" content="1200;URL='./'">
+	<meta http-equiv="refresh" content="<?=($sec ?: '600');?>">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -34,9 +34,6 @@ if (!empty($_POST)) {
     <!-- Bootstrap core CSS -->
     <link href="./css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="./css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-
     <!-- Custom styles for this template -->
     <link href="./css/navbar.css" rel="stylesheet">
 
@@ -45,4 +42,4 @@ if (!empty($_POST)) {
       <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
-    <script   src="https://code.jquery.com/jquery-3.1.0.js"   integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="   crossorigin="anonymous"></script>
+    <script src="./js/jquery-3.1.0.min.js"></script>

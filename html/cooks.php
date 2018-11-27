@@ -1,6 +1,6 @@
 <?php
+require 'header.php';
 	include_once('db.php');
-	require 'header.php';
 
 	$db=Database::getInstance();
 	$pdo=$db->getConnection();
@@ -11,35 +11,8 @@
 		$single=Database::update("delete from readings where cookid=".$cookid,$pdo);
 	}
 
-	$results=Database::select("select * from cooks order by id",$pdo);
+	$results=Database::select("SELECT * FROM cooks ORDER BY id DESC",$pdo);
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
- <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-  <meta name="description" content="">
-  <meta name="author" content="">
-  <link rel="icon" href="../../favicon.ico">
-  <title>ET-732 Cooks</title>
-  <!-- Bootstrap core CSS -->
-  <link href="./css/bootstrap.min.css" rel="stylesheet">
-  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <link href="./css/ie10-viewport-bug-workaround.css" rel="stylesheet">
-  <!-- Custom styles for this template -->
-  <link href="./css/navbar.css" rel="stylesheet">
-  <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
-  <!--[if lt IE 9]><script src="./js/ie8-responsive-file-warning.js"></script><![endif]-->
-  <script src="./js/ie-emulation-modes-warning.js"></script>
-  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-  <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-  <![endif]-->
-  <script   src="https://code.jquery.com/jquery-3.1.0.js"   integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="   crossorigin="anonymous"></script>
   <script type="text/javascript">
    $(function() {
 	$('[id^=deleteCook]').hide();
@@ -63,6 +36,23 @@
 	});
    });
   </script>
+<style>
+	td.desc {
+		position: relative;
+	}
+	.desc:before {
+		content: '';
+		display: inline-block;
+	}
+	td.desc span {
+		white-space: nowrap; 
+		overflow: hidden;
+		text-overflow: ellipsis;
+		position: absolute;
+		left: 0;
+		right: 0;
+	   }
+	</style>
  </head>
  <body>
   <div class="container">
@@ -72,17 +62,23 @@
    <div class="jumbotron">
     <h2>Cooks</h2>
     <table class="table table-hover table-sm">
-     <thead><tr><th>Cook ID</th><th>Date</th><th>&nbsp;</th></tr></thead>
-     <?php  foreach ($results as $row) { ?>
+     <thead><tr><th class="col-md-2">Date</th><th class="col-md-9">Description</th><th class="col-md-1">&nbsp;</th></tr></thead>
+     <?php  foreach ($results as $row) { 
+		 $t = strtotime($row['start']); ?>
       <tbody>
-       <tr id="cookRow<?=$row['id']?>">
-        <td><?=$row['id'].'</td>
-        <td>'.$row['start']?></td>
-        <td width=15% align=right>
-	<?php if ($_SESSION['auth'] == true) : ?>
+       <tr height=40 id="cookRow<?=$row['id']?>">
+        <td><?=date('m',$t)."/".date('d',$t)."/".date('y',$t)." ".date('h',$t).":".date('ia',$t)?></td>
+		<td class="desc"><span><?=$row['note']?></span></td>
+        <td align=right>
+	<?php if ($_SESSION['auth']) : ?>
          <button type="button" class="btn btn-xs btn-danger" data-toggle="confirmation" data-singleton="true" data-popout="true" data-btn-ok-class="btn-xs btn-danger" data-placement="left" data-title="Delete '<?=$row['start']?>'?" id="deleteCook<?=$row['id']?>" style="display:none" value=<?=$row['id']?>>
           <span class="glyphicon glyphicon-remove"></span>
          </button>
+	<?php else: ?>
+		<form action="graphs" method="GET">
+			<input type="hidden" name="cook" value="<?=$row['id']?>" />
+			<input type="submit" class="btn btn-xs btn-default" value="Select" />
+		</form>
 	<?php endif; ?>
         </td>
        </tr>

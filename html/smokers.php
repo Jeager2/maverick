@@ -1,4 +1,6 @@
 <?php
+require 'header.php';
+if ($_SESSION['auth']) :
 	include_once('db.php');
 
 	$db=Database::getInstance();
@@ -14,8 +16,6 @@
 
 	$results=Database::select("select * from smokers order by id",$pdo);
 ?>
-
-<?php require 'header.php';?>
   <script type="text/javascript">
    $(function() {
 	$('[id^=deleteSmoker]').hide();
@@ -49,21 +49,23 @@
    });
   </script>
  </head>
+<?php endif; ?>
  <body>
   <div class="container">
    <?php $btnActive[2]=" class='active'";?>
    <?php require 'menu.php';?>
    <!-- Main component for a primary marketing message or call to action -->
    <div class="jumbotron">
+   <?php if ($_SESSION['auth']) : ?>
     <h2>Smokers</h2>
     <table class="table table-hover table-sm">
      <thead><tr><th>Smoker ID</th><th>Description</th><th>&nbsp;</th></tr></thead>
      <?php  foreach ($results as $row) { ?>
       <tbody>
        <tr id="smokerRow<?=$row['id']?>">
-        <td><?=$row['id'].'</td>
-        <td>'.$row['desc']?></td>
-        <td width=15% align=right>
+        <td height=40 width=10%><?=$row['id'].'</td>
+        <td>'.htmlspecialchars($row['desc'])?></td>
+        <td width=10% align=right>
          <button type="button" class="btn btn-xs btn-danger" data-toggle="confirmation" data-singleton="true" data-popout="true" data-btn-ok-class="btn-xs btn-danger" data-placement="left" data-title="Delete '<?=$row['desc']?>'?" id="deleteSmoker<?=$row['id']?>" style="display:none" value=<?=$row['id']?>>
           <span class="glyphicon glyphicon-remove"></span>
          </button>
@@ -73,16 +75,17 @@
      <?php  } ?>
     </table>
     <div class="row">
-     <form action="smokers.php" method="post">
-      <div class="form-group">
-       <h2>Add a Smoker</h2>
-       <div class="col-sm-2 col-xs-4">
-        <label for="desc">Smoker Name/Description:</label><input type="text" class="form-control" name="desc" id="desc"><br />
-        <input class="btn btn-lg btn-success" type="submit" value="Add Smoker" name="addSmoker" id="addSmoker">
-       </div>
-      </div>
-     </form>
+		<h2>Add a Smoker</h2>
+     		<form method="post">
+				<div class="form-group">
+        		 	<label for="desc">Smoker Name/Description:<input type="text" class="form-control" name="desc" id="desc" maxlength="30"></label>
+			 	</div>
+        		<input class="btn btn-lg btn-success" type="submit" value="Add Smoker" name="addSmoker" id="addSmoker" />
+		 	</form>
     </div>
+	<?php else: ?>
+		<h3>Sorry, you need to log in to access this page.</h3>
+	<?php endif; ?>
    </div>
   </div> <!-- /container -->
   <?php require 'footer.php';?>
