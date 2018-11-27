@@ -31,7 +31,7 @@ Install steps as of 3/2018 (Raspbian stretch lite version November 2017) (work i
 11. copy html files to /var/www/html/
 12. sudo sqlite3 -init maverick/db.script /var/www/html/the.db
 13. gcc -o /var/www/html/maverick maverick.c -lwiringPi -lsqlite3
-14. Create bbq_user.txt and bbq_pass.txt in /var/www/ and use this tool to create user and pass: https://bcrypt-generator.com
+14. Create bbq_user.txt and bbq_pass.txt in /var/www/ and use this tool to create user and pass: https://bcrypt-generator.com/. Enter your username in "string to encrypt" and click "Hash!" Paste that into bbq_user.txt. Then do the same for your password and enter in bbq_pass.txt
 
 --
 
