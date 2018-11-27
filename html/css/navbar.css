@@ -7,3 +7,6 @@ body {
   margin-bottom: 20px;
 }
 
+.navbar form {
+	padding: 8px 0;
+}
